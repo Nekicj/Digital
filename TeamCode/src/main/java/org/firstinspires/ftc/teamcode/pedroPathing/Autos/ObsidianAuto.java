@@ -86,7 +86,6 @@ public class ObsidianAuto extends OpMode {
         telemetry.addData("closestPosHeading",follower.getClosestPose().getPose().getHeading());
         telemetry.addData("closest X",follower.getClosestPose().getPose().getX());
         telemetry.addData("closest Y",follower.getClosestPose().getPose().getY());
-        telemetry.addData("trans error",follower.getDriveError());
 
 
 
