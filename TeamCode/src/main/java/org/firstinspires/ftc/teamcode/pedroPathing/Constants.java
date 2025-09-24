@@ -23,13 +23,13 @@ public class Constants {
             .rightFrontMotorDirection(DcMotorSimple.Direction.FORWARD)
             .rightRearMotorDirection(DcMotorSimple.Direction.REVERSE)
 
-            .xVelocity(78.53294793076402)
-            .yVelocity(66.05725530188853);
+            .xVelocity(78.72774235282357)
+            .yVelocity(60.38050373708169);
 
     public static FollowerConstants followerConstants = new FollowerConstants()
             .mass(10.1)
-            .forwardZeroPowerAcceleration(-40.81561056531705)
-            .lateralZeroPowerAcceleration(-59.15365907069915)
+            .forwardZeroPowerAcceleration(-33.18291229811078)
+            .lateralZeroPowerAcceleration(-74.7114255848616)
 //            .translationalPIDFCoefficients(new PIDFCoefficients(
 //                    0.14,
 //                    0,
@@ -37,10 +37,10 @@ public class Constants {
 //                    0.015
 //            ))
             .translationalPIDFCoefficients(new PIDFCoefficients(
-                    0.04,
+                    0.08,
                     0,
-                    0,
-                    0.015
+                    0.012,
+                    0.04
             ))
             .translationalPIDFSwitch(2)
 ////            .secondaryTranslationalPIDFCoefficients(new PIDFCoefficients(
@@ -76,7 +76,7 @@ public class Constants {
                     0.6,
                     0.045
             ))
-            .useSecondaryDrivePIDF(true)
+            .useSecondaryDrivePIDF(false)
             .secondaryDrivePIDFCoefficients(new FilteredPIDFCoefficients(
                     0.02,
                     0,

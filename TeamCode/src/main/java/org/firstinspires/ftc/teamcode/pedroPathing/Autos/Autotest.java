@@ -13,7 +13,7 @@ import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import org.firstinspires.ftc.teamcode.pedroPathing.Constants;
 
 
-@Autonomous(name = "Obsidian Auto",group = "Competition Auto")
+@Autonomous(name = "Auto test",group = "Competition Auto")
 public class Autotest extends OpMode {
     private Follower follower;
     private Timer pathTimer,acitionTimer,opModeTimer;
@@ -36,7 +36,7 @@ public class Autotest extends OpMode {
 
         take1Path = new Path(new BezierLine(take1PosStart,take1PosEnd));
         take1Path.setLinearHeadingInterpolation(take1PosStart.getHeading(),take1PosEnd.getHeading());
-
+        take1Path.setTranslationalConstraint(1);
 
 
     }
@@ -61,7 +61,7 @@ public class Autotest extends OpMode {
                 break;
             case 1:
                 if(!follower.isBusy()){
-                    follower.followPath(take1Path,false);
+                    follower.followPath(take1Path,true);
 //                    pathState = 2;
                 }
                 break;
@@ -79,16 +79,15 @@ public class Autotest extends OpMode {
         pathUpdate();
 
         telemetry.addData("path state", pathState);
-        telemetry.addData("x", follower.getPose().getX());
-        telemetry.addData("y", follower.getPose().getY());
-        telemetry.addData("heading", follower.getPose().getHeading());
-        telemetry.addData("closest heading",follower.getClosestPointHeadingGoal());
-        telemetry.addData("closestPosHeading",follower.getClosestPose().getPose().getHeading());
-        telemetry.addData("closest X",follower.getClosestPose().getPose().getX());
-        telemetry.addData("closest Y",follower.getClosestPose().getPose().getY());
-
-
-
+//        telemetry.addData("x", follower.getPose().getX());
+//        telemetry.addData("y", follower.getPose().getY());
+//        telemetry.addData("heading", follower.getPose().getHeading());
+//        telemetry.addData("closest heading",follower.getClosestPointHeadingGoal());
+//        telemetry.addData("closestPosHeading",follower.getClosestPose().getPose().getHeading());
+//        telemetry.addData("closest X",follower.getClosestPose().getPose().getX());
+//        telemetry.addData("closest Y",follower.getClosestPose().getPose().getY());
+//        telemetry.addData("drive error",follower.getDriveError());
+        telemetry.addData("trans error",follower.getTranslationalError());
 
         telemetry.update();
     }
