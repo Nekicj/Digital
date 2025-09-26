@@ -1,19 +1,19 @@
-package org.firstinspires.ftc.teamcode.Kotak;
+package org.firstinspires.ftc.teamcode.Test;
 
 
 import com.acmerobotics.dashboard.config.Config;
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
-import org.firstinspires.ftc.teamcode.Controllers.ActionsController;
-import org.firstinspires.ftc.teamcode.Controllers.BaseController;
 import org.firstinspires.ftc.teamcode.Utils.asmGamepadEx;
 
 
 @Config
+@Disabled
 @TeleOp(name = "ShooterTest",group = "Test")
 public class ShooterTest extends LinearOpMode {
     private asmGamepadEx driver1;

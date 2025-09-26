@@ -8,11 +8,13 @@ import com.pedropathing.paths.Path;
 import com.pedropathing.paths.PathChain;
 import com.pedropathing.util.Timer;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
+import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.teamcode.pedroPathing.Constants;
 
-
+@Disabled
 @Autonomous(name = "Auto test",group = "Competition Auto")
 public class Autotest extends OpMode {
     private Follower follower;
@@ -27,6 +29,13 @@ public class Autotest extends OpMode {
 
 
     public Path take1Path;
+
+    public Path take2Path;
+
+    public ElapsedTime niggtimer;
+
+    public PathChain posTo;
+
     public PathChain startToTake1;
     public void buildPaths(){
         startToTake1 = follower.pathBuilder()
@@ -36,19 +45,25 @@ public class Autotest extends OpMode {
 
         take1Path = new Path(new BezierLine(take1PosStart,take1PosEnd));
         take1Path.setLinearHeadingInterpolation(take1PosStart.getHeading(),take1PosEnd.getHeading());
-        take1Path.setTranslationalConstraint(1);
+        take1Path.setTranslationalConstraint(0.4);
+
+        take2Path = new Path(new BezierLine(take1PosEnd,take1PosStart));
+        take2Path.setLinearHeadingInterpolation(take1PosEnd.getHeading(),take1PosStart.getHeading());
+        take2Path.setTranslationalConstraint(0.4);
 
 
     }
 
     @Override
     public void init(){
+        niggtimer = new ElapsedTime();
         pathTimer = new Timer();
         opModeTimer = new Timer();
         opModeTimer.resetTimer();
 
         follower = Constants.createFollower(hardwareMap);
         follower.setStartingPose(take1PosStart);
+
 
         buildPaths();
     }
@@ -61,15 +76,47 @@ public class Autotest extends OpMode {
                 break;
             case 1:
                 if(!follower.isBusy()){
-                    follower.followPath(take1Path,true);
-//                    pathState = 2;
+                    follower.activateAllPIDFs();
+                    follower.followPath(take1Path,false);
+                    pathState = 2;
                 }
                 break;
             case 2:
                 if(!follower.isBusy()){
-                    follower.setPose(take1PosEnd);
+                    follower.breakFollowing();
+                    follower.deactivateAllPIDFs();
+                    pathState =3;
+                    niggtimer.reset();
+
                 }
                 break;
+            case 3:
+                if( niggtimer.milliseconds() > 3000){
+                    if(Math.abs(take1PosEnd.getX() - follower.getPose().getX()) > 2 && !follower.isBusy() ){
+                        follower.activateAllPIDFs();
+                        follower.followPath(take2Path);
+                        pathState = 4;
+                    }else{
+                        pathState = 1;
+                    }
+                }
+                break;
+            case 4:
+
+                if(!follower.isBusy() ){
+                    follower.breakFollowing();
+                    follower.deactivateAllPIDFs();
+                    pathState =5;
+                    niggtimer.reset();
+                }
+                break;
+            case 5:
+                if(niggtimer.milliseconds() > 3000){
+                    pathState = 1;
+                    niggtimer.reset();
+                }
+
+
 
         }
     }
@@ -79,6 +126,7 @@ public class Autotest extends OpMode {
         pathUpdate();
 
         telemetry.addData("path state", pathState);
+        telemetry.addData("X",Math.abs(take1PosEnd.getX() - follower.getPose().getX()));
 //        telemetry.addData("x", follower.getPose().getX());
 //        telemetry.addData("y", follower.getPose().getY());
 //        telemetry.addData("heading", follower.getPose().getHeading());
@@ -87,7 +135,7 @@ public class Autotest extends OpMode {
 //        telemetry.addData("closest X",follower.getClosestPose().getPose().getX());
 //        telemetry.addData("closest Y",follower.getClosestPose().getPose().getY());
 //        telemetry.addData("drive error",follower.getDriveError());
-        telemetry.addData("trans error",follower.getTranslationalError());
+//        telemetry.addData("trans error",follower.getTranslationalError());
 
         telemetry.update();
     }

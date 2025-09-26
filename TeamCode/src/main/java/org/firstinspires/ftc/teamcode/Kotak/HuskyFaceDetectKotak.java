@@ -4,6 +4,7 @@ import com.acmerobotics.dashboard.config.Config;
 import com.qualcomm.ftccommon.SoundPlayer;
 import android.media.MediaPlayer;
 import com.qualcomm.hardware.dfrobot.HuskyLens;
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
@@ -11,7 +12,8 @@ import java.io.File;
 import java.io.IOException;
 
 @Config
-@TeleOp(name="Face HuskyLens")
+@Disabled
+@TeleOp(name="Face HuskyLens",group = "Kotak")
 public class HuskyFaceDetectKotak extends LinearOpMode {
 
     private HuskyLens huskyLens = null;

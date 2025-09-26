@@ -3,31 +3,35 @@ package org.firstinspires.ftc.teamcode.Controllers;
 import com.acmerobotics.dashboard.config.Config;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 
+import org.firstinspires.ftc.robotcore.external.Telemetry;
+
 @Config
 public class ActionsController {
     private double intakeDirection = 0;
     private IntakeController intakeController;
     private ShooterController shooterController;
-    private CommandScheduler intakeScheduler;
+    private CommandScheduler outtakeScheduler;
 
     private double intakeStage = -2;
+    public static double TIME_BETWEEN_SHOOT = 0.18;
 
 
 
     public ActionsController(HardwareMap hardwareMap){
         intakeController = new IntakeController();
         shooterController = new ShooterController();
-        intakeScheduler = new CommandScheduler();
+        outtakeScheduler = new CommandScheduler();
+
         intakeController.initialize(hardwareMap,"intake_1","intake_2");
         shooterController.initialize(hardwareMap,"shooter_l","shooter_r","l_angle","r_angle",ShooterController.ServosPos.DIRECTION_UP.getPos());
     }
 
     private boolean isShooting = false;
 
-    public static double shooterSpeed = -1;
+    public static double shooterSpeed = -1820;
 
     public void update(boolean isBack){
-        intakeScheduler.update();
+        outtakeScheduler.update();
     }
 
     // -2 stop intake
@@ -84,6 +88,37 @@ public class ActionsController {
         }else{
             shooterController.setShooterPower(0);
         }
+    }
+    public void shootBall(){
+        outtakeScheduler.clearQueue();
+        outtakeScheduler.setAutoReset(false);
+
+        outtakeScheduler.scheduleCommand(()-> intakeEpt(0));
+        outtakeScheduler.scheduleDelay(TIME_BETWEEN_SHOOT);
+        outtakeScheduler.scheduleCommand(()-> intakeEpt(0));
+
+        outtakeScheduler.scheduleCommand(()-> intakeEpt(1));
+
+        outtakeScheduler.start();
+    }
+    public void toShoot(boolean isShoot){
+        isShooting = isShoot;
+        if(isShooting){
+            shooterController.setShooterPower(shooterSpeed);
+        }else{
+            shooterController.setShooterPower(0);
+        }
+    }
+    public void showShooterTelemetry(Telemetry telemetry){
+        shooterController.showTelemetry(telemetry,shooterSpeed);
+    }
+
+    public boolean checkShooterVelocity(double targetVelocity,double offset){
+        return shooterController.checkVelocity(targetVelocity,offset);
+    }
+
+    public void setShooterVelocity(double velocity){
+        shooterSpeed = velocity;
     }
 
 

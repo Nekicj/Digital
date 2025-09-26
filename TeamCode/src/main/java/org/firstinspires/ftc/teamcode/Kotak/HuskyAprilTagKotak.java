@@ -2,11 +2,13 @@ package org.firstinspires.ftc.teamcode.Kotak;
 
 import com.acmerobotics.dashboard.config.Config;
 import com.qualcomm.hardware.dfrobot.HuskyLens;
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
 @Config
-@TeleOp(name="AprilTag HuskyLens")
+@Disabled
+@TeleOp(name="AprilTag HuskyLens",group = "Kotak")
 public class HuskyAprilTagKotak extends LinearOpMode {
 
     private HuskyLens huskyLens = null;

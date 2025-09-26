@@ -1,7 +1,6 @@
 package org.firstinspires.ftc.teamcode.pedroPathing.Autos;
 
 import com.acmerobotics.dashboard.config.Config;
-import com.bylazar.configurables.annotations.Configurable;
 import com.pedropathing.follower.Follower;
 import com.pedropathing.geometry.BezierCurve;
 import com.pedropathing.geometry.BezierLine;
@@ -15,12 +14,11 @@ import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.teamcode.Controllers.ActionsController;
 import org.firstinspires.ftc.teamcode.Controllers.ShooterController;
-import org.firstinspires.ftc.teamcode.Utils.asmConfig;
 import org.firstinspires.ftc.teamcode.pedroPathing.Constants;
 
 @Config
-@Autonomous(name = "12+0 with activator",group = "Competition Auto")
-public class ObsidianAuto extends OpMode {
+@Autonomous(name = "12+0 with human",group = "Competition Auto")
+public class ObsidianNHumanPlayerAuto extends OpMode {
     private ActionsController actionsController;
     private Follower follower;
     private Timer pathTimer,acitionTimer,opModeTimer;
@@ -31,13 +29,6 @@ public class ObsidianAuto extends OpMode {
     private int pathState = 0;
 
     private int ballsCount = 0;
-
-    public static double pattern = 0;
-
-
-    // 0 - GPP
-    // 1 - PGP
-    // 2 - PPG
 
 
     private Pose scorePose = new Pose(34.801,4.545,-2.35);
@@ -53,9 +44,6 @@ public class ObsidianAuto extends OpMode {
     private final Pose take2PosStart = new Pose(64.5,2.1406,-1.59);
     private final Pose take2PosEnd = new Pose(64.5,-26.2,-1.59);
 
-    private final Pose take3PosStart = new Pose(86.763,2.1406,-1.59);
-    private final Pose take3PosEnd = new Pose(86.763,-26.2,-1.59);
-
     // -1820 -1600 long score
 
     // -1420 -1200-1220 close score
@@ -65,18 +53,12 @@ public class ObsidianAuto extends OpMode {
 
     public Path take1Path;
     public Path take2Path;
-    public Path take3Path;
 
     public PathChain startToScore;
-
     public PathChain scoreToTake1;
-    public PathChain scoreToTake3;
-    public PathChain scoreToTake2;
-
     public PathChain take1toScore;
+    public PathChain scoreToTake2;
     public PathChain take2ToScore;
-    public PathChain take3ToScore;
-
     public void buildPaths(){
 
         startToScore = follower.pathBuilder()
@@ -114,18 +96,7 @@ public class ObsidianAuto extends OpMode {
                 .setLinearHeadingInterpolation(take2PosEnd.getHeading(),scorePose.getHeading(),1)
                 .build();
 
-        scoreToTake3 = follower.pathBuilder()
-                .addPath(new BezierCurve(scorePose,take3PosStart))
-                .setLinearHeadingInterpolation(scorePose.getHeading(),take3PosStart.getHeading())
-                .build();
 
-        take3Path = new Path(new BezierLine(take3PosStart,take3PosEnd));
-        take3Path.setConstantHeadingInterpolation(take3PosEnd.getHeading());
-
-        take3ToScore = follower.pathBuilder()
-                .addPath(new BezierCurve(take3PosEnd,scorePose))
-                .setLinearHeadingInterpolation(take3PosEnd.getHeading(),scorePose.getHeading())
-                .build();
 
     }
 
@@ -146,8 +117,6 @@ public class ObsidianAuto extends OpMode {
             actionsController.setDirectionPos(ShooterController.ServosPos.DIRECTION_DOWN.getPos());
             offset = -200;
         }
-
-        pattern = asmConfig.pattern;
 
         pathTimer = new Timer();
         pathTimer.resetTimer();
@@ -269,49 +238,10 @@ public class ObsidianAuto extends OpMode {
                         ballsCount+=1;
                     }else{
                         actionsController.toShoot(false);
+                        actionsController.intakeEpt(1);
                         follower.activateAllPIDFs();
                         ballsCount = 0;
                         pathState = 13;
-                    }
-                }
-                break;
-            case 13:
-                if(!follower.isBusy()){
-                    follower.followPath(scoreToTake3);
-                    pathState = 14;
-                }
-                break;
-            case 14:
-                if(!follower.isBusy()){
-                    follower.followPath(take3Path);
-                    pathState = 15;
-                }
-                break;
-            case 15:
-                if(!follower.isBusy()){
-                    follower.followPath(take3ToScore);
-                    actionsController.toShoot(true);
-                    pathState = 16;
-                }
-                break;
-            case 16:
-                if(!follower.isBusy()){
-                    follower.breakFollowing();
-                    follower.deactivateAllPIDFs();
-                    pathState = 17;
-                }
-                break;
-            case 17:
-                if(actionsController.checkShooterVelocity(targetVelocityToCheck,offset) && niggTimer.milliseconds() > 650){
-                    if(ballsCount <=3){
-                        actionsController.shootBall();
-                        niggTimer.reset();
-                        ballsCount+=1;
-                    }else{
-                        actionsController.toShoot(false);
-                        follower.activateAllPIDFs();
-                        ballsCount = 0;
-                        pathState = 18;
                     }
                 }
                 break;
@@ -326,7 +256,6 @@ public class ObsidianAuto extends OpMode {
 
         telemetry.addData("path state", pathState);
         telemetry.addData("balls count",ballsCount);
-        telemetry.addData("pattern",pattern);
         telemetry.addData("x", follower.getPose().getX());
         telemetry.addData("y", follower.getPose().getY());
         telemetry.addData("heading", follower.getPose().getHeading());

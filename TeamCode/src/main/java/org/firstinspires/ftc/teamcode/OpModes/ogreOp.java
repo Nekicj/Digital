@@ -53,6 +53,9 @@ public class ogreOp extends LinearOpMode {
             if(driver1.isDpadUpPressed()){
                 actionsController.intakeEpt(0);
             }
+            if(driver1.isRightTriggerPressed(0.2)){
+                actionsController.shootBall();
+            }
 
 
             if(driver1.isRightStickButtonPressed()){
@@ -80,6 +83,7 @@ public class ogreOp extends LinearOpMode {
             actionsController.update(gamepad2.back);
 
             telemetry.addData("Status", "Running");
+            actionsController.showShooterTelemetry(telemetry);
 
             baseController.viewTelemetry(telemetry);
             telemetry.update();

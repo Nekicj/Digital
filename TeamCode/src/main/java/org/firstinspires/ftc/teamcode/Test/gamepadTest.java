@@ -1,14 +1,15 @@
-package org.firstinspires.ftc.teamcode.Kotak;
+package org.firstinspires.ftc.teamcode.Test;
 
 
 import com.acmerobotics.dashboard.config.Config;
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.teamcode.Utils.asmGamepadEx;
 
-
+@Disabled
 @Config
 @TeleOp(name = "GamepadTest",group = "Test")
 public class gamepadTest extends LinearOpMode {
