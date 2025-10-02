@@ -1,9 +1,6 @@
 package org.firstinspires.ftc.teamcode.pedroPathing.Autos;
 
-import android.provider.Telephony;
-
 import com.acmerobotics.dashboard.config.Config;
-import com.bylazar.configurables.annotations.Configurable;
 import com.pedropathing.follower.Follower;
 import com.pedropathing.geometry.BezierCurve;
 import com.pedropathing.geometry.BezierLine;
@@ -19,25 +16,23 @@ import org.firstinspires.ftc.teamcode.Controllers.ActionsController;
 import org.firstinspires.ftc.teamcode.Controllers.ShooterController;
 import org.firstinspires.ftc.teamcode.Utils.asmConfig;
 import org.firstinspires.ftc.teamcode.pedroPathing.Constants;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 @Config
-@Autonomous(name = "12+0 without activator",group = "Competition Auto")
-public class ObsidianAuto extends OpMode {
-    private static final Logger log = LoggerFactory.getLogger(ObsidianAuto.class);
+@Autonomous(name = "12+2 n 7 pattern",group = "Competition Auto")
+public class ObsidianWith2PatternAuto extends OpMode {
     private ActionsController actionsController;
     private Follower follower;
     private Timer pathTimer,acitionTimer,opModeTimer;
     private ElapsedTime niggTimer;
 
     public static boolean isLongScore = false;
+    public static boolean isRed = false;
 
     private int pathState = 0;
 
     private int ballsCount = 0;
 
-    public static double pattern = 0;
+    public static int pattern = 0;
 
 
     // 0 - GPP
@@ -74,8 +69,6 @@ public class ObsidianAuto extends OpMode {
     private double targetVelocityToCheck = -1820;
     private double offset = -270;
 
-    public static boolean isRed = false;
-
     public PathChain take1Path;
     public PathChain take2Path;
     public PathChain take3Path;
@@ -93,8 +86,6 @@ public class ObsidianAuto extends OpMode {
     public PathChain scoreToParking;
 
     public void buildPaths(){
-
-
         startToScore = follower.pathBuilder()
                 .addPath(new BezierCurve(startPose,scorePose))
                 .setLinearHeadingInterpolation(startPose.getHeading(),scorePose.getHeading(),1)
@@ -163,13 +154,28 @@ public class ObsidianAuto extends OpMode {
                 .setLinearHeadingInterpolation(scorePose.getHeading(),parkingPose.getHeading())
                 .build();
 
-
-
     }
 
     @Override
     public void init(){
+        actionsController = new ActionsController(hardwareMap);
+
+        if(!isLongScore){
+            scorePose = closeScorePose;
+            targetVelocityToCheck = asmConfig.motorVelocityClose;
+            offset = asmConfig.motorOffsetClose;
+            actionsController.setShooterVelocity(targetVelocityToCheck);
+            actionsController.setDirectionPos(ShooterController.ServosPos.DIRECTION_UP.getPos());
+        }else{
+            scorePose = longScore;
+            targetVelocityToCheck = asmConfig.motorVelocityLong;
+            actionsController.setShooterVelocity(targetVelocityToCheck);
+            actionsController.setDirectionPos(ShooterController.ServosPos.DIRECTION_DOWN.getPos());
+            offset = asmConfig.motorOffsetLong;
+        }
+
         isRed = asmConfig.isRed;
+        pattern = asmConfig.pattern;
 
         if(isRed){
             if(!isLongScore){
@@ -194,13 +200,11 @@ public class ObsidianAuto extends OpMode {
 
             parkingPose = asmConfig.parkingPoseRed;
         }else{
-
             if(!isLongScore){
                 scorePose = asmConfig.closeScorePose;
             }else{
                 scorePose = asmConfig.longScore;
             }
-
 
             startPose = asmConfig.startPose;
 
@@ -219,24 +223,6 @@ public class ObsidianAuto extends OpMode {
             parkingPose = asmConfig.parkingPose;
         }
 
-        actionsController = new ActionsController(hardwareMap);
-
-        if(!isLongScore){
-            scorePose = closeScorePose;
-            targetVelocityToCheck = asmConfig.motorVelocityClose;
-            offset = asmConfig.motorOffsetClose;
-            actionsController.setShooterVelocity(targetVelocityToCheck);
-            actionsController.setDirectionPos(ShooterController.ServosPos.DIRECTION_UP.getPos());
-        }else{
-            scorePose = longScore;
-            targetVelocityToCheck = asmConfig.motorVelocityLong;
-            actionsController.setShooterVelocity(targetVelocityToCheck);
-            actionsController.setDirectionPos(ShooterController.ServosPos.DIRECTION_DOWN.getPos());
-            offset = asmConfig.motorOffsetLong;
-        }
-
-        pattern = asmConfig.pattern;
-
         pathTimer = new Timer();
         pathTimer.resetTimer();
         opModeTimer = new Timer();
@@ -244,15 +230,18 @@ public class ObsidianAuto extends OpMode {
         niggTimer = new ElapsedTime();
         niggTimer.reset();
 
+
         follower = Constants.createFollower(hardwareMap);
         follower.setStartingPose(startPose);
 
 
 
-        telemetry.addData("isRed: ",isRed);
-        telemetry.update();
+
 
         buildPaths();
+        telemetry.addData("pattern: ",pattern);
+        telemetry.addData("isRed: ",isRed);
+        telemetry.update();
     }
 
 
@@ -290,21 +279,45 @@ public class ObsidianAuto extends OpMode {
                 break;
             case 3:
                 if(!follower.isBusy()){
-                    follower.followPath(scoreToTake1);
-                    pathState = 4;
+                    if(pattern == 0){
+                        follower.followPath(scoreToTake3);
+                        pathState = 4;
+                    }else if(pattern == 1){
+                        follower.followPath(scoreToTake2);
+                        pathState = 4;
+                    }else if(pattern == 2){
+                        follower.followPath(scoreToTake1);
+                        pathState = 4;
+                    }
                 }
                 break;
             case 4:
                 if(!follower.isBusy()){
-                    follower.followPath(take1Path);
-                    pathState = 5;
+                    if(pattern == 0){
+                        follower.followPath(take3Path);
+                        pathState = 5;
+                    }else if(pattern == 1){
+                        follower.followPath(take2Path);
+                        pathState = 5;
+                    }else if(pattern == 2){
+                        follower.followPath(take1Path);
+                        pathState = 5;
+                    }
                 }
                 break;
             case 5:
                 if(!follower.isBusy()){
-                    follower.followPath(take1toScore);
+                    if(pattern == 0){
+                        follower.followPath(take3ToScore);
+                        pathState = 6;
+                    }else if(pattern == 1){
+                        follower.followPath(take2ToScore);
+                        pathState = 6;
+                    }else if(pattern == 2){
+                        follower.followPath(take1toScore);
+                        pathState = 6;
+                    }
                     actionsController.toShoot(true);
-                    pathState = 6;
                 }
                 break;
             case 6:
@@ -329,20 +342,43 @@ public class ObsidianAuto extends OpMode {
                 }
                 break;
             case 8:
-                if(!follower.isBusy()){
-                    follower.followPath(scoreToTake2);
-                    pathState = 9;
+                if(!follower.isBusy()){ //========================================================
+                    if(pattern == 0){
+                        follower.followPath(scoreToTake1);
+                        pathState = 9;
+                    }else if(pattern == 1){
+                        follower.followPath(scoreToTake1);
+                        pathState = 9;
+                    }else if(pattern == 2){
+                        follower.followPath(scoreToTake2);
+                        pathState = 9;
+                    }
                 }
                 break;
             case 9:
                 if(!follower.isBusy()){
-                    follower.followPath(take2Path);
-                    pathState = 10;
+                    if(pattern == 0){
+                        follower.followPath(take1Path);
+                        pathState = 10;
+                    }else if(pattern == 1){
+                        follower.followPath(take1Path);
+                        pathState = 10;
+                    }else if(pattern == 2){
+                        follower.followPath(take2Path);
+                        pathState = 10;
+                    }
+
                 }
                 break;
             case 10:
                 if(!follower.isBusy()){
-                    follower.followPath(take2ToScore);
+                    if(pattern == 0){
+                        follower.followPath(take1toScore);
+                    }else if(pattern == 1){
+                        follower.followPath(take1toScore);
+                    }else if(pattern == 2){
+                        follower.followPath(take2ToScore);
+                    }
                     actionsController.toShoot(true);
                     pathState = 11;
                 }
@@ -370,19 +406,37 @@ public class ObsidianAuto extends OpMode {
                 break;
             case 13:
                 if(!follower.isBusy()){
-                    follower.followPath(scoreToTake3);
+                    if(pattern == 0){
+                        follower.followPath(scoreToTake2);
+                    }else if(pattern == 1){
+                        follower.followPath(scoreToTake3);
+                    }else if(pattern == 2){
+                        follower.followPath(scoreToTake3);
+                    }
                     pathState = 14;
                 }
                 break;
             case 14:
                 if(!follower.isBusy()){
-                    follower.followPath(take3Path);
+                    if(pattern == 0){
+                        follower.followPath(take2Path);
+                    }else if(pattern == 1){
+                        follower.followPath(take3Path);
+                    }else if(pattern == 2){
+                        follower.followPath(take3Path);
+                    }
                     pathState = 15;
                 }
                 break;
             case 15:
                 if(!follower.isBusy()){
-                    follower.followPath(take3ToScore);
+                    if(pattern == 0){
+                        follower.followPath(take2ToScore);
+                    }else if(pattern == 1){
+                        follower.followPath(take3ToScore);
+                    }else if(pattern == 2){
+                        follower.followPath(take3ToScore);
+                    } 
                     actionsController.toShoot(true);
                     pathState = 16;
                 }
@@ -402,7 +456,6 @@ public class ObsidianAuto extends OpMode {
                         ballsCount+=1;
                     }else{
                         actionsController.toShoot(false);
-                        actionsController.intakeEpt(1);
                         follower.activateAllPIDFs();
                         ballsCount = 0;
                         pathState = 18;
@@ -434,7 +487,6 @@ public class ObsidianAuto extends OpMode {
         telemetry.addData("path state", pathState);
         telemetry.addData("balls count",ballsCount);
         telemetry.addData("pattern",pattern);
-        telemetry.addData("isRed: ",isRed);
         telemetry.addData("x", follower.getPose().getX());
         telemetry.addData("y", follower.getPose().getY());
         telemetry.addData("heading", follower.getPose().getHeading());

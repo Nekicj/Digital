@@ -19,7 +19,7 @@ public class ShooterController {
     public static double kP = 15;
     public static double kI = 0;
     public static double kD = 0;
-    public static double kF = 15;
+    public static double kF = 17;
 
     private PIDFCoefficients pidfShooterCoeffs = new PIDFCoefficients(kP,kI,kD,kF);
 

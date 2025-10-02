@@ -11,6 +11,7 @@ import com.qualcomm.robotcore.util.ElapsedTime;
 import org.firstinspires.ftc.teamcode.Controllers.ActionsController;
 import org.firstinspires.ftc.teamcode.Controllers.BaseController;
 import org.firstinspires.ftc.teamcode.Controllers.ShooterController;
+import org.firstinspires.ftc.teamcode.Utils.asmConfig;
 import org.firstinspires.ftc.teamcode.Utils.asmGamepadEx;
 
 
@@ -20,6 +21,9 @@ public class ogreOp extends LinearOpMode {
     private ActionsController actionsController;
     private BaseController baseController;
     private asmGamepadEx driver1;
+
+    private double targetVelocityToCheck = asmConfig.motorVelocityClose;
+    private double offset = asmConfig.motorOffsetClose;
 
     @Override
     public void runOpMode() {
@@ -38,7 +42,7 @@ public class ogreOp extends LinearOpMode {
 
 
 
-            baseController.update(gamepad1.left_stick_x,-gamepad1.left_stick_y,gamepad1.right_stick_x,1,gamepad1.right_trigger > 0);
+            baseController.update(gamepad1.left_stick_x,-gamepad1.left_stick_y,gamepad1.right_stick_x,1,gamepad1.left_trigger > 0);
 
             if(driver1.isXPressed()){
                 actionsController.toShoot();
@@ -60,7 +64,13 @@ public class ogreOp extends LinearOpMode {
 
             if(driver1.isRightStickButtonPressed()){
                 actionsController.setDirectionPos(ShooterController.ServosPos.DIRECTION_UP.getPos());
+                targetVelocityToCheck = asmConfig.motorVelocityClose;
+                offset = asmConfig.motorOffsetClose;
+                actionsController.setShooterVelocity(targetVelocityToCheck);
             }else if(driver1.isLeftStickButtonPressed()){
+                targetVelocityToCheck = asmConfig.motorVelocityLong;
+                offset = asmConfig.motorOffsetLong;
+                actionsController.setShooterVelocity(targetVelocityToCheck);
                 actionsController.setDirectionPos(ShooterController.ServosPos.DIRECTION_DOWN.getPos());
             }
 
@@ -70,6 +80,10 @@ public class ogreOp extends LinearOpMode {
 
             if(driver1.isBPressed()){
                 baseController.setTargetHeading();
+            }
+
+            if(actionsController.checkShooterVelocity(targetVelocityToCheck,offset)){
+                gamepad1.rumble(0.1,0.1,50);
             }
 
 //            actionsController.ravaPiet(gamepad1.right_bumper);

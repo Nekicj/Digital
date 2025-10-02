@@ -5,7 +5,7 @@ import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
 import org.firstinspires.ftc.teamcode.Utils.asmConfig;
 
-@TeleOp(name="GPP switch",group = "Switchers")
+@TeleOp(name="PGP switch",group = "Switchers")
 public class switchToPGP extends LinearOpMode {
 
     @Override

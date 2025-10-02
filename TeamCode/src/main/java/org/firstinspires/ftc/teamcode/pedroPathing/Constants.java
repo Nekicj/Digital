@@ -32,56 +32,56 @@ public class Constants {
             .mass(10.1)
             .forwardZeroPowerAcceleration(-33.18291229811078)
             .lateralZeroPowerAcceleration(-74.7114255848616)
-//            .translationalPIDFCoefficients(new PIDFCoefficients(
-//                    0.14,
-//                    0,
-//                    0.02,
-//                    0.015
-//            ))
             .translationalPIDFCoefficients(new PIDFCoefficients(
-                    0.08,
+                    0.14,
                     0,
-                    0.01,
+                    0.015,
                     0.04
             ))
+//            .translationalPIDFCoefficients(new PIDFCoefficients(
+//                    0.08,
+//                    0,
+//                    0.01,
+//                    0.04
+//            ))
             .translationalPIDFSwitch(5)
-////            .secondaryTranslationalPIDFCoefficients(new PIDFCoefficients(
-////                    0.06,
-////                    0,
-////                    0.0035,                     0.004,
-////                    0.015                       0.02
-////            ))
             .secondaryTranslationalPIDFCoefficients(new PIDFCoefficients(
-                    0.4,   //0.4
+                    0.06,
                     0,
-                    0.005,       //0.005
-                    0.0006
+                    0.004,                     //0.004,
+                    0.02                //0.02
             ))
+//            .secondaryTranslationalPIDFCoefficients(new PIDFCoefficients(
+//                    0.4,   //0.4
+//                    0,
+//                    0.005,       //0.005
+//                    0.0006
+//            ))
             .useSecondaryTranslationalPIDF(true)
-            .headingPIDFCoefficients(new PIDFCoefficients(
-                    0.64,
-                    0,
-                    0.022,
-                    0.02
-            ))
 //            .headingPIDFCoefficients(new PIDFCoefficients(
 //                    0.64,
 //                    0,
 //                    0.022,
 //                    0.02
 //            ))
-//            .secondaryHeadingPIDFCoefficients(new PIDFCoefficients(
-//                    1, //2.5
-//                    0,
-//                    0.1,   //0.1
-//                    0.02 //0.0005
-//            ))
+            .headingPIDFCoefficients(new PIDFCoefficients(
+                    0.64,
+                    0,
+                    0.022,
+                    0.02
+            ))
             .secondaryHeadingPIDFCoefficients(new PIDFCoefficients(
                     1, //2.5
                     0,
                     0.1,   //0.1
                     0.02 //0.0005
             ))
+//            .secondaryHeadingPIDFCoefficients(new PIDFCoefficients(
+//                    1, //2.5
+//                    0,
+//                    0.1,   //0.1
+//                    0.02 //0.0005
+//            ))
             .useSecondaryHeadingPIDF(true)
             .drivePIDFCoefficients(new FilteredPIDFCoefficients(
                     0.0035,
@@ -101,7 +101,7 @@ public class Constants {
 
             .drivePIDFSwitch(15)
             .headingPIDFSwitch(0.2) //0.07
-            .holdPointHeadingScaling(35)
+            .holdPointHeadingScaling(0.35)
             .holdPointTranslationalScaling(0.25)
             .turnHeadingErrorThreshold(0.01)
             .automaticHoldEnd(true)

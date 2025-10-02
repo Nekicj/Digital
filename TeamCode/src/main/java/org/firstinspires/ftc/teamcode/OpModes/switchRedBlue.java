@@ -5,11 +5,11 @@ import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
 import org.firstinspires.ftc.teamcode.Utils.asmConfig;
 
-@TeleOp(name="PPG switch",group = "Switchers")
-public class switchToPPG extends LinearOpMode {
+@TeleOp(name="RedBlue Switch",group = "Switchers")
+public class switchRedBlue extends LinearOpMode {
 
     @Override
     public void runOpMode(){
-        asmConfig.pattern = 2;
+        asmConfig.isRed = !asmConfig.isRed;
     }
 }

@@ -14,10 +14,11 @@ import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.teamcode.Controllers.ActionsController;
 import org.firstinspires.ftc.teamcode.Controllers.ShooterController;
+import org.firstinspires.ftc.teamcode.Utils.asmConfig;
 import org.firstinspires.ftc.teamcode.pedroPathing.Constants;
 
 @Config
-@Autonomous(name = "12+0 with human",group = "Competition Auto")
+@Autonomous(name = "12+0 n 3 patterns(human)",group = "Competition Auto")
 public class ObsidianNHumanPlayerAuto extends OpMode {
     private ActionsController actionsController;
     private Follower follower;
@@ -25,24 +26,41 @@ public class ObsidianNHumanPlayerAuto extends OpMode {
     private ElapsedTime niggTimer;
 
     public static boolean isLongScore = false;
+    public static boolean isRed = false;
 
     private int pathState = 0;
 
     private int ballsCount = 0;
 
+    public static double pattern = 0;
 
-    private Pose scorePose = new Pose(34.801,4.545,-2.35);
 
-    private final Pose startPose = new Pose(14.238,-18.086,-2.333);
+    // 0 - GPP
+    // 1 - PGP
+    // 2 - PPG
 
-    private final Pose closeScorePose = new Pose(26.461,-4.759,-2.339);
-    private final Pose longScore = new Pose(54.5,27.5,-2.3);
 
-    private final Pose take1PosStart = new Pose(39.472,2.1406,-1.59);
-    private final Pose take1PosEnd = new Pose(39.472,-26.2,-1.59);
+    private Pose scorePose = null;
 
-    private final Pose take2PosStart = new Pose(64.5,2.1406,-1.59);
-    private final Pose take2PosEnd = new Pose(64.5,-26.2,-1.59);
+    private Pose startPose = null;
+
+    private Pose closeScorePose = null;
+    private Pose longScore = null;
+
+    private Pose take1PosStart = null;
+    private Pose take1PosEnd = null;
+
+    private Pose take2PosStart = null;
+    private Pose take2PosEnd = null;
+
+    private Pose take3PosStart = null;
+    private Pose take3PosEnd = null;
+
+    private Pose parkingPose = null;
+
+    // take1 PPG
+    // take2 PGP
+    // take3 GPP
 
     // -1820 -1600 long score
 
@@ -51,14 +69,22 @@ public class ObsidianNHumanPlayerAuto extends OpMode {
     private double targetVelocityToCheck = -1820;
     private double offset = -270;
 
-    public Path take1Path;
-    public Path take2Path;
+    public PathChain take1Path;
+    public PathChain take2Path;
+    public PathChain take3Path;
 
     public PathChain startToScore;
+
     public PathChain scoreToTake1;
-    public PathChain take1toScore;
+    public PathChain scoreToTake3;
     public PathChain scoreToTake2;
+
+    public PathChain take1toScore;
     public PathChain take2ToScore;
+    public PathChain take3ToScore;
+
+    public PathChain scoreToParking;
+
     public void buildPaths(){
 
         startToScore = follower.pathBuilder()
@@ -73,9 +99,14 @@ public class ObsidianNHumanPlayerAuto extends OpMode {
                 .build();
 
 
-        take1Path = new Path(new BezierLine(take1PosStart,take1PosEnd));
-        take1Path.setConstantHeadingInterpolation(take1PosStart.getHeading());
+//            take1Path = new Path(new BezierLine(take1PosStart,take1PosEnd));
+//            take1Path.setConstantHeadingInterpolation(take1PosStart.getHeading());
 //        take1Path.setLinearHeadingInterpolation(scorePose.getHeading(),take1PosEnd.getHeading());
+
+        take1Path = follower.pathBuilder()
+                .addPath(new BezierLine(take1PosStart,take1PosEnd))
+                .setConstantHeadingInterpolation(take1PosStart.getHeading())
+                .build();
 
         take1toScore = follower.pathBuilder()
                 .addPath(new BezierCurve(take1PosEnd,scorePose))
@@ -87,35 +118,110 @@ public class ObsidianNHumanPlayerAuto extends OpMode {
                 .setLinearHeadingInterpolation(scorePose.getHeading(),take2PosStart.getHeading(),1)
                 .build();
 
-        take2Path = new Path(new BezierLine(take2PosStart,take2PosEnd));
-        take2Path.setConstantHeadingInterpolation(take2PosStart.getHeading());
+//            take2Path = new Path(new BezierLine(take2PosStart,take2PosEnd));
+//            take2Path.setConstantHeadingInterpolation(take2PosStart.getHeading());
 //        take2Path.setLinearHeadingInterpolation(scorePose.getHeading(),take2PosEnd.getHeading());
+
+        take2Path = follower.pathBuilder()
+                .addPath(new BezierLine(take2PosStart,take2PosEnd))
+                .setConstantHeadingInterpolation(take2PosStart.getHeading())
+                .build();
 
         take2ToScore = follower.pathBuilder()
                 .addPath(new BezierCurve(take2PosEnd,scorePose))
                 .setLinearHeadingInterpolation(take2PosEnd.getHeading(),scorePose.getHeading(),1)
                 .build();
 
+        scoreToTake3 = follower.pathBuilder()
+                .addPath(new BezierCurve(scorePose,take3PosStart))
+                .setLinearHeadingInterpolation(scorePose.getHeading(),take3PosStart.getHeading())
+                .build();
 
+//            take3Path = new Path(new BezierLine(take3PosStart,take3PosEnd));
+//            take3Path.setConstantHeadingInterpolation(take3PosEnd.getHeading());
+
+        take3Path = follower.pathBuilder()
+                .addPath(new BezierLine(take3PosStart,take3PosEnd))
+                .setConstantHeadingInterpolation(take3PosEnd.getHeading())
+                .build();
+
+        take3ToScore = follower.pathBuilder()
+                .addPath(new BezierCurve(take3PosEnd,scorePose))
+                .setLinearHeadingInterpolation(take3PosEnd.getHeading(),scorePose.getHeading())
+                .build();
+
+        scoreToParking = follower.pathBuilder()
+                .addPath(new BezierCurve(scorePose,parkingPose))
+                .setLinearHeadingInterpolation(scorePose.getHeading(),parkingPose.getHeading())
+                .build();
 
     }
 
     @Override
     public void init(){
+
         actionsController = new ActionsController(hardwareMap);
 
         if(!isLongScore){
             scorePose = closeScorePose;
-            targetVelocityToCheck = -1320;
-            offset = -150;
+            targetVelocityToCheck = asmConfig.motorVelocityClose;
+            offset = asmConfig.motorOffsetClose;
             actionsController.setShooterVelocity(targetVelocityToCheck);
             actionsController.setDirectionPos(ShooterController.ServosPos.DIRECTION_UP.getPos());
         }else{
             scorePose = longScore;
-            targetVelocityToCheck = -1750;
+            targetVelocityToCheck = asmConfig.motorVelocityLong;
             actionsController.setShooterVelocity(targetVelocityToCheck);
             actionsController.setDirectionPos(ShooterController.ServosPos.DIRECTION_DOWN.getPos());
-            offset = -200;
+            offset = asmConfig.motorOffsetLong;
+        }
+        isRed = asmConfig.isRed;
+        pattern = asmConfig.pattern;
+
+        if(isRed){
+            if(!isLongScore){
+                scorePose = asmConfig.closeScorePoseRed;
+            }else{
+                scorePose = asmConfig.longScoreRed;
+            }
+
+            startPose = asmConfig.startPoseRed;
+
+            closeScorePose = asmConfig.closeScorePoseRed;
+            longScore = asmConfig.longScoreRed;
+
+            take1PosStart = asmConfig.take1PosStartRed;
+            take1PosEnd = asmConfig.take1PosEndRed;
+
+            take2PosStart = asmConfig.take2PosStartRed;
+            take2PosEnd = asmConfig.take2PosEndRed;
+
+            take3PosStart = asmConfig.take3PosStartRed;
+            take3PosEnd = asmConfig.take3PosEndRed;
+
+            parkingPose = asmConfig.parkingPoseRed;
+        }else{
+            if(!isLongScore){
+                scorePose = asmConfig.closeScorePose;
+            }else{
+                scorePose = asmConfig.longScore;
+            }
+
+            startPose = asmConfig.startPose;
+
+            closeScorePose = asmConfig.closeScorePose;
+            longScore = asmConfig.longScore;
+
+            take1PosStart = asmConfig.take1PosStart;
+            take1PosEnd = asmConfig.take1PosEnd;
+
+            take2PosStart = asmConfig.take2PosStart;
+            take2PosEnd = asmConfig.take2PosEnd;
+
+            take3PosStart = asmConfig.take3PosStart;
+            take3PosEnd = asmConfig.take3PosEnd;
+
+            parkingPose = asmConfig.parkingPose;
         }
 
         pathTimer = new Timer();
@@ -145,14 +251,14 @@ public class ObsidianNHumanPlayerAuto extends OpMode {
                 break;
             case 1: // SCORING
                 if(!follower.isBusy()){
-                    follower.breakFollowing();
-                    follower.deactivateAllPIDFs();
+//                    follower.breakFollowing();
+//                    follower.deactivateAllPIDFs();
                     pathState = 2;
                 }
                 break;
             case 2: // WAIT FOR SHOOTER AND GO TO TAKE 1
                 if(actionsController.checkShooterVelocity(targetVelocityToCheck,offset) && niggTimer.milliseconds() > 650){
-                    if(ballsCount <=3){
+                    if(ballsCount <3){
                         actionsController.shootBall();
                         niggTimer.reset();
                         ballsCount+=1;
@@ -185,14 +291,14 @@ public class ObsidianNHumanPlayerAuto extends OpMode {
                 break;
             case 6:
                 if(!follower.isBusy()){
-                    follower.breakFollowing();
-                    follower.deactivateAllPIDFs();
+//                    follower.breakFollowing();
+//                    follower.deactivateAllPIDFs();
                     pathState = 7;
                 }
                 break;
             case 7:
                 if(actionsController.checkShooterVelocity(targetVelocityToCheck,offset) && niggTimer.milliseconds() > 650){
-                    if(ballsCount <=3){
+                    if(ballsCount <3){
                         actionsController.shootBall();
                         niggTimer.reset();
                         ballsCount+=1;
@@ -225,24 +331,76 @@ public class ObsidianNHumanPlayerAuto extends OpMode {
                 break;
             case 11:
                 if(!follower.isBusy()){
-                    follower.breakFollowing();
-                    follower.deactivateAllPIDFs();
+//                    follower.breakFollowing();
+//                    follower.deactivateAllPIDFs();
                     pathState = 12;
                 }
                 break;
             case 12:
                 if(actionsController.checkShooterVelocity(targetVelocityToCheck,offset) && niggTimer.milliseconds() > 650){
-                    if(ballsCount <=3){
+                    if(ballsCount <3){
                         actionsController.shootBall();
                         niggTimer.reset();
                         ballsCount+=1;
                     }else{
                         actionsController.toShoot(false);
-                        actionsController.intakeEpt(1);
                         follower.activateAllPIDFs();
                         ballsCount = 0;
                         pathState = 13;
                     }
+                }
+                break;
+            case 13:
+                if(!follower.isBusy()){
+                    follower.followPath(scoreToTake3);
+                    pathState = 14;
+                }
+                break;
+            case 14:
+                if(!follower.isBusy()){
+                    follower.followPath(take3Path);
+                    pathState = 15;
+                }
+                break;
+            case 15:
+                if(!follower.isBusy()){
+                    follower.followPath(take3ToScore);
+                    actionsController.toShoot(true);
+                    pathState = 16;
+                }
+                break;
+            case 16:
+                if(!follower.isBusy()){
+//                    follower.breakFollowing();
+//                    follower.deactivateAllPIDFs();
+                    pathState = 17;
+                }
+                break;
+            case 17:
+                if(actionsController.checkShooterVelocity(targetVelocityToCheck,offset) && niggTimer.milliseconds() > 650){
+                    if(ballsCount <3){
+                        actionsController.shootBall();
+                        niggTimer.reset();
+                        ballsCount+=1;
+                    }else{
+                        actionsController.toShoot(false);
+                        follower.activateAllPIDFs();
+                        ballsCount = 0;
+                        pathState = 18;
+                    }
+                }
+                break;
+            case 18:
+                if(!follower.isBusy()){
+                    follower.followPath(scoreToParking);
+                    pathState = 19;
+                }
+                break;
+            case 19:
+                if(!follower.isBusy()){
+//                    follower.deactivateAllPIDFs();
+//                    follower.breakFollowing();
+                    pathState = 20;
                 }
                 break;
 
@@ -256,6 +414,7 @@ public class ObsidianNHumanPlayerAuto extends OpMode {
 
         telemetry.addData("path state", pathState);
         telemetry.addData("balls count",ballsCount);
+        telemetry.addData("pattern",pattern);
         telemetry.addData("x", follower.getPose().getX());
         telemetry.addData("y", follower.getPose().getY());
         telemetry.addData("heading", follower.getPose().getHeading());

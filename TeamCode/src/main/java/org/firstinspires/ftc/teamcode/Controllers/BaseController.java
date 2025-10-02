@@ -12,15 +12,17 @@ import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 import org.firstinspires.ftc.teamcode.Utils.asmPIDController;
+import org.firstinspires.ftc.teamcode.Utils.asmPIDFController;
 
 @Config
 public class BaseController {
-    public static double targetHeading = 0;
-    private asmPIDController headingPID;
+    private double targetHeading = 0;
+    private asmPIDFController headingPIDF;
 
-    public static double Kp = 0.05;
+    public static double Kp = 0.3;
     public static double Ki = 0;
     public static double Kd = 0.01;
+    public static double Kf = 0.01;
 
 
 
@@ -34,9 +36,9 @@ public class BaseController {
 
 
     public void initialize(HardwareMap hardwareMap){
-        headingPID = new asmPIDController(Kp, Ki, Kd);
-        headingPID.setTarget(targetHeading);
-        headingPID.setTolerance(2);
+        headingPIDF = new asmPIDFController(Kp, Ki, Kd,Kf);
+        headingPIDF.setSetPoint(targetHeading);
+        headingPIDF.setTolerance(0.5);
 
         Lfront = hardwareMap.get(DcMotor.class,"lfd");
         Rfront = hardwareMap.get(DcMotor.class,"rfd");
@@ -98,7 +100,8 @@ public class BaseController {
 
         // --------------------------HEADINGLOCK----------------------
         if (headingLockEnabled) {
-            double correction = headingPID.calculate(pinpoint.getHeading(AngleUnit.RADIANS));
+            headingPIDF.setSetPoint(targetHeading);
+            double correction = headingPIDF.calculate(pinpoint.getHeading(AngleUnit.RADIANS));
 
             turnSpeed = correction;
         }
@@ -158,7 +161,7 @@ public class BaseController {
     }
     public void setTargetHeading(){
         targetHeading = pinpoint.getHeading(AngleUnit.RADIANS);
-        headingPID.setTarget(targetHeading);
+        headingPIDF.setSetPoint(targetHeading);
     }
     public void resetHeading(){
         pinpoint.setHeading(0,AngleUnit.RADIANS);
@@ -178,10 +181,9 @@ public class BaseController {
     public void viewTelemetry(Telemetry telemetry){
 
         telemetry.addData("Target Heading",targetHeading);
+        telemetry.addData("heading error: ",headingPIDF.getPositionError());
+        telemetry.addData("velocity error: ",headingPIDF.getVelocityError());
         telemetry.addData("Angle in radian",pinpoint.getHeading(AngleUnit.RADIANS));
         telemetry.addData("Angle in degrees",pinpoint.getHeading(AngleUnit.DEGREES));
-
-        telemetry.addData("x",pinpoint.getPosX(DistanceUnit.CM));
-        telemetry.addData("y",pinpoint.getPosY(DistanceUnit.CM));
     }
 }
